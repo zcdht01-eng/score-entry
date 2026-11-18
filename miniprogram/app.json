@@ -1,0 +1,11 @@
+{
+  "pages": ["pages/index/index"],
+  "window": {
+    "navigationBarTitleText": "第二十七届学生田径运动会",
+    "navigationBarBackgroundColor": "#102b55",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f3f6fb"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
