@@ -1,15 +1,22 @@
-# 校运会成绩查询原型
+# 校运会成绩录入
 
-汕头市谢易初中学第二十七届学生田径运动会手机查询与成绩录入页面原型。
+汕头市谢易初中学第二十七届学生田径运动会查询与成绩录入原型。
 
-## 使用
+## Files
 
-打开 `index.html` 即可在浏览器预览。
+- `index.html` and `client.js`: mobile-first student and staff interface.
+- `supabase/schema.sql`: schema snapshot for `public.meet_results`.
+- `supabase/functions/score-api/index.ts`: public read endpoint and password-protected create/update endpoint.
 
-## 原型说明
+## Supabase configuration
 
-- 页面包含项目查询、成绩查询筛选、班级积分榜、成绩录入和成绩修改。
-- 单项前六名按 7、5、4、3、2、1 分计分，接力加倍；破校级纪录加 7 分，破年级纪录加 5 分。
-- 当前数据保存在浏览器本机，不会在不同设备间同步。
-- 页面内的工作人员密码验证仅用于演示，不构成真实访问控制；正式使用需要服务端认证和共享数据库。
-- 比赛安排按现有通知整理，后续以学校正式秩序册为准。
+The current Supabase project is `score-entry` (`ddnbywabawofmmoxazdq`) in Singapore (`ap-southeast-1`). The database has a `meet_results` table with RLS enabled and direct `anon`/`authenticated` table access revoked. The Edge Function uses the service-role key only on the server.
+
+Before staff writes can be used, set `ADMIN_PASSWORD` in Supabase Dashboard → Edge Functions → Secrets. Use a new password; the old demo PIN was present in an earlier public GitHub commit and should be treated as exposed. Never add the secret to this repository or the frontend.
+
+## Prototype limitations
+
+The app ranks times ascending and field marks descending within each event and division; it awards 7/5/4/3/2/1 points, doubles relay points, adds 7 for a school record and 5 for a grade record, and rolls scores up by class. Ties share the same placement points. The class list is generated for classes 1–12 and should be adjusted if the school's class range differs.
+
+This Supabase project is in Singapore, not mainland China. Mainland student access may be slow or unavailable. Test it on mainland mobile networks before distributing it as the official event site.
+
