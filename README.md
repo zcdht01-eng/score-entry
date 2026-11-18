@@ -1,22 +1,38 @@
-# 校运会成绩录入
+# 汕头市谢易初中学第二十七届学生田径运动会
 
-汕头市谢易初中学第二十七届学生田径运动会查询与成绩录入原型。
+微信小程序前端原型，供学生用手机查询比赛项目、成绩和班级积分，工作人员登录后录入或修改成绩。
 
-## Files
+## 导入微信开发者工具
 
-- `index.html` and `client.js`: mobile-first student and staff interface.
-- `supabase/schema.sql`: schema snapshot for `public.meet_results`.
-- `supabase/functions/score-api/index.ts`: public read endpoint and password-protected create/update endpoint.
+选择本目录下的 `miniprogram` 文件夹作为小程序项目目录。当前只包含小程序前端；后端尚未部署，成绩读取、登录、录入和修改需要等大陆接口接好后才能实际使用。
 
-## Supabase configuration
+## 大陆接口预留
 
-The current Supabase project is `score-entry` (`ddnbywabawofmmoxazdq`) in Singapore (`ap-southeast-1`). The database has a `meet_results` table with RLS enabled and direct `anon`/`authenticated` table access revoked. The Edge Function uses the service-role key only on the server.
+接口基址配置在 `miniprogram/config.js`，当前是 `https://api.example.cn` 占位地址。替换为大陆可访问的 HTTPS 域名后，还需要：
 
-Before staff writes can be used, set `ADMIN_PASSWORD` in Supabase Dashboard → Edge Functions → Secrets. Use a new password; the old demo PIN was present in an earlier public GitHub commit and should be treated as exposed. Never add the secret to this repository or the frontend.
+1. 在微信公众平台小程序后台配置该域名为 `request` 合法域名。
+2. 服务器和域名按境内服务要求完成备案，并启用 HTTPS。
+3. 按以下接口约定部署后端；管理员密码仅在服务器验证，不能写进小程序前端。
 
-## Prototype limitations
+| 方法 | 路径 | 用途 |
+| --- | --- | --- |
+| `GET` | `/api/scores` | 查询公开成绩，返回数组或 `{ "results": [] }` |
+| `POST` | `/api/admin/login` | `{ "password": "..." }` 登录，返回 `{ "token": "..." }` |
+| `POST` | `/api/scores` | Bearer token 新增成绩 |
+| `PUT` | `/api/scores/{id}` | Bearer token 修改成绩 |
 
-The app ranks times ascending and field marks descending within each event and division; it awards 7/5/4/3/2/1 points, doubles relay points, adds 7 for a school record and 5 for a grade record, and rolls scores up by class. Ties share the same placement points. The class list is generated for classes 1–12 and should be adjusted if the school's class range differs.
+成绩字段：`event_name`、`division`、`athlete_name`、`class_name`、`result`、`record_level`（`none` / `school` / `grade`）。积分由前端按成绩自动显示；正式上线时建议后端也执行同一套排名和计分，避免客户端数据被篡改。
 
-This Supabase project is in Singapore, not mainland China. Mainland student access may be slow or unavailable. Test it on mainland mobile networks before distributing it as the official event site.
+## 当前实现的规则
 
+- 同项目、同组别独立排名；径赛按用时从低到高，田赛按成绩从高到低。
+- 前六名依次 7、5、4、3、2、1 分；4×100 米接力积分加倍。
+- 勾选校级纪录加 7 分，年级纪录加 5 分。
+- 积分累计到参赛班级；同分时按第一名数量排序。
+- 成绩查询按项目和年级筛选；录入班级随组别年级切换；允许修改成绩。
+
+赛事日期显示为 12 月 15 日，秩序册和赛程安排尚未加入。班级选项暂按每个年级 1 至 12 班生成，可在 `miniprogram/pages/index/index.js` 的 `classOptions` 中调整。
+
+## 旧服务
+
+原新加坡 Supabase 服务已暂停，本项目不再调用它；没有已录入成绩需要迁移。
