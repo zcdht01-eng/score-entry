@@ -69,6 +69,8 @@ function drawScores() {
   const rowHtml = (row, admin) => `<tr><td>${row.event}<br><small>${row.div}</small></td><td>${row.name}</td><td>${row.className}</td><td>${row.result}</td><td>${row.rank}</td><td>${row.points}</td>${admin ? `<td><button class="badge" onclick="openEditById('${row.id}')">修改</button></td>` : ""}</tr>`;
   const table = (data, admin = false) => `<div class="tablewrap"><table class="table"><thead><tr><th>项目 / 组别</th><th>姓名</th><th>班级</th><th>成绩</th><th>名次</th><th>积分</th>${admin ? "<th>操作</th>" : ""}</tr></thead><tbody>${data.map(row => rowHtml(row, admin)).join("")}</tbody></table></div>`;
   document.querySelector("#adminList").innerHTML = rows.length ? table(rows, true) : '<div class="empty">还没有录入记录</div>';
+  const latest = rows.slice(0, 5);
+  document.querySelector("#latestScoreList").innerHTML = latest.length ? table(latest) : '<div class="empty"><b>暂无成绩</b>成绩录入后会在这里更新</div>';
   const event = document.querySelector("#scoreEventFilter").value;
   const grade = document.querySelector("#scoreGradeFilter").value;
   const visible = rows.filter(row => (event === "全部" || row.event === event) && (grade === "全部" || gradeOf(row.div) === grade));
@@ -184,5 +186,5 @@ document.querySelector("#editDivision").addEventListener("change", event => setC
 document.querySelector("#isRecord").addEventListener("change", event => document.querySelector("#recordLevelWrap").classList.toggle("hidden", !event.target.checked));
 document.querySelector("#editRecord").addEventListener("change", event => document.querySelector("#editRecordLevelWrap").classList.toggle("hidden", !event.target.checked));
 document.querySelector("#adminPassword").addEventListener("keydown", event => { if (event.key === "Enter") loginAdmin(); });
-syncEntryClasses(); showAdmin(); refreshScores();
+renderEvents(); syncEntryClasses(); showAdmin(); refreshScores();
 
