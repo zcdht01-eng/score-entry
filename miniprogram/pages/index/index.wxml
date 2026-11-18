@@ -1,0 +1,39 @@
+<view class="hero"><view class="hero-title">汕头市谢易初中学<br/>第二十七届学生<br/>田径运动会</view><view class="hero-sub">赛事信息与成绩查询</view><view class="date">比赛日期：12月15日</view></view>
+<view class="page">
+  <block wx:if="{{activeTab==='home'}}">
+    <view class="section-title">赛程与项目<text class="muted">以学校最终安排为准</text></view>
+    <view wx:for="{{events}}" wx:key="name" class="card"><view class="row"><text class="event-title">{{item.name}}</text><text class="badge">{{item.type}}</text></view><view class="muted spacer">{{item.info}} · {{item.grades}}</view></view>
+    <view class="section-title">最新成绩<text class="muted">最近录入</text></view>
+    <view wx:if="{{latestScores.length}}" class="card"><view wx:for="{{latestScores}}" wx:key="id" class="table-row"><view class="cell-event">{{item.event_name}}<view class="muted">{{item.division}}</view></view><view class="cell-name">{{item.athlete_name}}</view><view class="cell-class">{{item.class_name}}</view><view class="cell-result">{{item.result}}</view></view></view>
+    <view wx:else class="card empty"><text class="event-title">暂无成绩</text>{{apiMessage}}</view>
+  </block>
+  <block wx:if="{{activeTab==='scores'}}">
+    <view class="section-title">成绩查询<text class="muted">按项目和年级筛选</text></view>
+    <view class="card filters"><view class="filter"><text class="label">项目</text><picker range="{{eventNames}}" value="{{eventIndex}}" bindchange="onEventChange"><view class="picker">{{eventNames[eventIndex]}}</view></picker></view><view class="filter"><text class="label">年级</text><picker range="{{grades}}" value="{{gradeIndex}}" bindchange="onGradeChange"><view class="picker">{{grades[gradeIndex]}}</view></picker></view></view>
+    <view wx:if="{{visibleScores.length}}" class="card"><view class="table-head"><view class="cell-event">项目/组别</view><view class="cell-name">姓名</view><view class="cell-class">班级</view><view class="cell-result">成绩</view><view class="cell-rank">名次</view><view class="cell-points">积分</view></view><view wx:for="{{visibleScores}}" wx:key="id" class="table-row"><view class="cell-event">{{item.event_name}}<view class="muted">{{item.division}}</view></view><view class="cell-name">{{item.athlete_name}}</view><view class="cell-class">{{item.class_name}}</view><view class="cell-result">{{item.result}}</view><view class="cell-rank">{{item.rank}}</view><view class="cell-points">{{item.points}}</view></view></view>
+    <view wx:else class="card empty"><text class="event-title">暂无符合条件的成绩</text>{{apiMessage}}</view>
+  </block>
+  <block wx:if="{{activeTab==='rank'}}">
+    <view class="section-title">班级积分榜<text class="muted">总分相同按第一名数排序</text></view><view class="tabs"><view class="tab {{rankLevel==='初中'?'active':''}}" data-level="初中" bindtap="onRankLevelChange">初中组</view><view class="tab {{rankLevel==='高中'?'active':''}}" data-level="高中" bindtap="onRankLevelChange">高中组</view></view>
+    <view wx:if="{{classTotals.length}}" class="card"><view class="table-head"><view class="cell-rank">排名</view><view class="cell-class">班级</view><view class="cell-result">总分</view><view class="cell-points">第一名数</view></view><view wx:for="{{classTotals}}" wx:key="0" class="table-row"><view class="cell-rank">{{index+1}}</view><view class="cell-class">{{item[0]}}</view><view class="cell-result">{{item[1].points}}</view><view class="cell-points">{{item[1].firsts}}</view></view></view><view wx:else class="card empty"><text class="event-title">积分榜暂未生成</text>{{apiMessage}}<view>单项前六名：7、5、4、3、2、1分；接力加倍</view></view>
+  </block>
+  <block wx:if="{{activeTab==='admin'}}">
+    <view class="section-title">成绩录入<text class="muted">工作人员</text></view><view class="notice">成绩将写入大陆接口。配置备案域名后，请在小程序后台加入 request 合法域名。</view>
+    <view wx:if="{{!loggedIn}}" class="card">
+      <view class="field"><text class="label">工作人员密码</text><input class="input" password value="{{password}}" placeholder="请输入密码" bindinput="onPasswordInput"/></view><button class="button secondary" bindtap="login">验证并登录</button><view wx:if="{{error}}" class="error">{{error}}</view>
+    </view>
+    <view wx:if="{{loggedIn}}" class="card">
+      <view class="row"><text class="muted">已登录工作人员</text><button class="button small secondary" bindtap="logout">退出登录</button></view>
+      <view class="field"><text class="label">比赛项目</text><picker range="{{entryEvents}}" value="{{entryEventIndex}}" bindchange="onEntryEventChange"><view class="picker">{{entryEvents[entryEventIndex]}}</view></picker></view>
+      <view class="field"><text class="label">组别</text><picker range="{{divisions}}" value="{{divisionIndex}}" bindchange="onDivisionChange"><view class="picker">{{divisions[divisionIndex]}}</view></picker></view>
+      <view class="field"><text class="label">运动员姓名</text><input class="input" value="{{name}}" placeholder="请输入学生姓名" bindinput="onNameInput"/></view>
+      <view class="field"><text class="label">参赛班级（积分归属）</text><picker range="{{classes}}" value="{{classIndex}}" bindchange="onClassChange"><view class="picker">{{classes[classIndex]}}</view></picker></view>
+      <view class="field"><text class="label">成绩</text><input class="input" type="digit" value="{{result}}" placeholder="径赛秒数或田赛米数" bindinput="onResultInput"/></view>
+      <view class="record-row"><checkbox-group bindchange="onRecordChange"><label><checkbox value="yes" checked="{{isRecord}}"/>是否破纪录</label></checkbox-group></view>
+      <view wx:if="{{isRecord}}" class="field"><text class="label">纪录级别</text><picker range="{{recordLevelOptions}}" bindchange="onRecordLevelChange"><view class="picker">{{recordLevel==='school'?'校级纪录（+7分）':'年级纪录（+5分）'}}</view></picker></view>
+      <view wx:if="{{error}}" class="error">{{error}}</view><button class="button" bindtap="saveScore">{{editingId?'保存修改':'保存成绩'}}</button>
+    </view>
+    <view wx:if="{{loggedIn}}" class="section-title">已录入成绩<text class="muted">可修改</text></view><view wx:if="{{loggedIn}}" wx:for="{{ranked}}" wx:key="id" class="card"><view class="row"><view><text class="event-title">{{item.event_name}} · {{item.division}}</text><view class="muted">{{item.athlete_name}} / {{item.class_name}} · {{item.result}}</view></view><button class="button small" data-id="{{item.id}}" bindtap="editScore">修改</button></view></view>
+  </block>
+</view>
+<view class="bottom-nav"><view wx:for="{{tabs}}" wx:key="id" class="nav-item {{activeTab===item.id?'active':''}}" data-id="{{item.id}}" bindtap="switchTab"><text class="nav-icon">{{item.icon}}</text>{{item.name}}</view></view>
